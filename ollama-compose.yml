@@ -1,0 +1,36 @@
+services:
+  # docker run -d -p 3000:8080 --add-host=host.docker.internal:host-gateway -v open-webui:/app/backend/data --name open-webui --restart always ghcr.io/open-webui/open-webui:main
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    ports:
+      - 3000:8080
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - open-webui:/app/backend/data
+    restart: always
+
+  # docker run -d --gpus all -v ollama:/root/.ollama -p 11434:11434 --name ollama --restart always ollama/ollama
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    ports:
+      - 11434:11434
+    volumes:
+      - ollama:/root/.ollama
+    tty: true
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
+    restart: always
+
+volumes:
+  open-webui:
+  ollama:
